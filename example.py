@@ -24,13 +24,15 @@ def main():
     Check the detection performance obtained with cross-correlation and PCE
     :return:
     """
+    # PRNUが検出しやすい平面を撮影したデータ
     ff_dirlist = np.array(sorted(glob('test/data/ff-jpg/*.JPG')))
     ff_device = np.array([os.path.split(i)[1].rsplit('_', 1)[0] for i in ff_dirlist])
-
+    # 風景を撮影したデータ
     nat_dirlist = np.array(sorted(glob('test/data/nat-jpg/*.JPG')))
     nat_device = np.array([os.path.split(i)[1].rsplit('_', 1)[0] for i in nat_dirlist])
 
     print('Computing fingerprints')
+    # 今回検出するデバイスを策定
     fingerprint_device = sorted(np.unique(ff_device))
     k = []
     for device in fingerprint_device:
@@ -47,7 +49,7 @@ def main():
             im_cut = prnu.cut_ctr(im_arr, (512, 512, 3))
             imgs += [im_cut] # +=で配列追加
         k += [prnu.extract_multiple_aligned(imgs, processes=cpu_count())]
-
+    
     k = np.stack(k, 0)
 
     print('Computing residuals')
