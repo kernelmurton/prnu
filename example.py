@@ -20,7 +20,7 @@ def main():
     """
     Main example script. Load a subset of flatfield and natural images from Dresden.
     For each device compute the fingerprint from all the flatfield images.
-    For each natural image compute the noise residual.
+    For each natural image compute the noise residual.t
     Check the detection performance obtained with cross-correlation and PCE
     :return:
     """
@@ -45,7 +45,7 @@ def main():
                 print('Image is not RGB: {}'.format(img_path))
                 continue
             im_cut = prnu.cut_ctr(im_arr, (512, 512, 3))
-            imgs += [im_cut]
+            imgs += [im_cut] # +=で配列追加
         k += [prnu.extract_multiple_aligned(imgs, processes=cpu_count())]
 
     k = np.stack(k, 0)
