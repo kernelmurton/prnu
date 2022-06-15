@@ -46,24 +46,22 @@ def main():
             if im_arr.ndim != 3:
                 print('Image is not RGB: {}'.format(img_path))
                 continue
+            #データのトリミングを行う
             im_cut = prnu.cut_ctr(im_arr, (512, 512, 3))
             imgs += [im_cut] # +=で配列追加
         k += [prnu.extract_multiple_aligned(imgs, processes=cpu_count())]
-    
     k = np.stack(k, 0)
 
     print('Computing residuals')
-
+    #風景写真について扱う
     imgs = []
     for img_path in nat_dirlist:
         imgs += [prnu.cut_ctr(np.asarray(Image.open(img_path)), (512, 512, 3))]
-
+    #Python で関数の実行を並列化する
     pool = Pool(cpu_count())
     w = pool.map(prnu.extract_single, imgs)
     pool.close()
-
     w = np.stack(w, 0)
-
     # Computing Ground Truth
     gt = prnu.gt(fingerprint_device, nat_device)
 
