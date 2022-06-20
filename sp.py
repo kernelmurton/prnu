@@ -33,9 +33,10 @@ def main():
 
     print('Computing fingerprints')
     # 今回検出するデバイスを策定
-    fingerprint_device = sorted(np.unique(ff_device))
+    fingerprint_device = sorted(np.unique(ff_device))#ユニークなデバイス
     k = []
     for device in fingerprint_device:
+        print('The unique device is {}'.format(device))
         imgs = []
         for img_path in ff_dirlist[ff_device == device]:
             im = Image.open(img_path)
@@ -49,9 +50,8 @@ def main():
             #データのトリミングを行う
             im_cut = prnu.cut_ctr(im_arr, (512, 512, 3))
             imgs += [im_cut] # +=で配列追加
-        k += [prnu.extract_multiple_aligned(imgs, processes=cpu_count())]
+        k += [prnu.extract_multiple_aligned(imgs, processes=cpu_count())]#prnuを抽出して配列に追加する
     k = np.stack(k, 0)
-
     print('Computing residuals')
     #風景写真について扱う
     imgs = []
@@ -78,6 +78,8 @@ def main():
         for natural_idx, natural_w in enumerate(w):
             cc2d = prnu.crosscorr_2d(fingerprint_k, natural_w)
             pce_rot[fingerprint_idx, natural_idx] = prnu.pce(cc2d)['pce']
+            # print('PCE value:{:.3f}'.format(prnu.pce(cc2d)['pce']))
+
 
     print('Computing statistics on PCE')
     stats_pce = prnu.stats(pce_rot, gt)
