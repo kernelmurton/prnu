@@ -59,6 +59,7 @@ def main():
         imgs += [prnu.cut_ctr(np.asarray(Image.open(img_path)), (512, 512, 3))]
     #Python で関数の実行を並列化する
     pool = Pool(cpu_count())
+    print(cpu_count())
     w = pool.map(prnu.extract_single, imgs)
     pool.close()
     w = np.stack(w, 0)
