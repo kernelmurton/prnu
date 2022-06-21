@@ -36,6 +36,7 @@ def main():
     fingerprint_device = sorted(np.unique(ff_device))
     k = []
     for device in fingerprint_device:
+        print('The unique devices is {}'.format(device))
         imgs = []
         for img_path in ff_dirlist[ff_device == device]:
             im = Image.open(img_path)

@@ -505,14 +505,15 @@ def pce(cc: np.ndarray, neigh_radius: int = 2) -> dict:
 
 """
 Statistical functions
+統計値を算出する関数
 """
-
-
 def stats(cc: np.ndarray, gt: np.ndarray, ) -> dict:
     """
     Compute statistics
     :param cc: cross-correlation or normalized cross-correlation matrix
+    ->相互相関関数or正規化相互相関関数
     :param gt: boolean multidimensional array representing groundtruth
+    ->教師データ
     :return: statistics dictionary
     """
     assert (cc.shape == gt.shape)
@@ -524,15 +525,15 @@ def stats(cc: np.ndarray, gt: np.ndarray, ) -> dict:
     fpr, tpr, th = roc_curve(gt.flatten(), cc.flatten())
     auc_score = auc(fpr, tpr)
 
-    # EER
+    # EER(Equal Error Rate)
     eer_idx = np.argmin((fpr - (1 - tpr)) ** 2, axis=0)
     eer = float(fpr[eer_idx])
 
     outdict = {
-        'tpr': tpr,
-        'fpr': fpr,
-        'th': th,
-        'auc': auc_score,
+        'tpr': tpr,#真陽性率
+        'fpr': fpr,#偽陽性率
+        'th': th,#閾値
+        'auc': auc_score,#ROC 曲線の下部分の面積のこと。１に近い方が良い。
         'eer': eer,
     }
 
@@ -542,6 +543,7 @@ def stats(cc: np.ndarray, gt: np.ndarray, ) -> dict:
 def gt(l1: list or np.ndarray, l2: list or np.ndarray) -> np.ndarray:
     """
     Determine the Ground Truth matrix given the labels
+    ->教師データを作る
     :param l1: fingerprints labels
     :param l2: residuals labels
     :return: groundtruth matrix
