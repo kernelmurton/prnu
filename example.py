@@ -36,6 +36,7 @@ def main():
     fingerprint_device = sorted(np.unique(ff_device))
     k = []
     for device in fingerprint_device:
+        print('The unique devices is {}'.format(device))
         imgs = []
         for img_path in ff_dirlist[ff_device == device]:
             im = Image.open(img_path)
@@ -48,10 +49,12 @@ def main():
                 continue
             #データのトリミングを行う
             im_cut = prnu.cut_ctr(im_arr, (512, 512, 3))
-            imgs += [im_cut] # +=で配列追加
+            imgs += [im_cut] # +=でlist追加
         k += [prnu.extract_multiple_aligned(imgs, processes=cpu_count())]
     k = np.stack(k, 0)
-
+    print('The dimension number of PRNU data is {}'.format(k.ndim))
+    for dim in range(k.ndim):
+        print('The size of {} dimension is {}'.format(dim+1,k.shape[dim]))
     print('Computing residuals')
     #風景写真について扱う
     imgs = []
@@ -62,6 +65,8 @@ def main():
     w = pool.map(prnu.extract_single, imgs)
     pool.close()
     w = np.stack(w, 0)
+    for dim in range(w.ndim):
+        print('The size of {} dimension is {}'.format(dim+1,w.shape[dim]))
     # Computing Ground Truth
     gt = prnu.gt(fingerprint_device, nat_device)
 
