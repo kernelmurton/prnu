@@ -50,7 +50,6 @@ def extract_single(im: np.ndarray,
 def noise_extract(im: np.ndarray, levels: int = 4, sigma: float = 5) -> np.ndarray:
     """
     NoiseExtract as from Binghamton toolbox.
-
     :param im: grayscale or color image, np.uint8
     :param levels: number of wavelet decomposition levels
     :param sigma: estimated noise power
@@ -65,7 +64,7 @@ def noise_extract(im: np.ndarray, levels: int = 4, sigma: float = 5) -> np.ndarr
     noise_var = sigma ** 2
 
     if im.ndim == 2:
-        im.shape += (1,)
+        im.shape += (1,)#３次元データに変換
 
     W = np.zeros(im.shape, np.float32)
 
@@ -142,7 +141,7 @@ def extract_multiple_aligned(imgs: list, levels: int = 4, sigma: float = 5, proc
     assert (imgs[0].dtype == np.uint8)
 
     h, w, ch = imgs[0].shape
-
+    # h:hight w:width ch:channel
     RPsum = np.zeros((h, w, ch), np.float32)
     NN = np.zeros((h, w, ch), np.float32)
 
@@ -511,7 +510,6 @@ def stats(cc: np.ndarray, gt: np.ndarray, ) -> dict:
     """
     Compute statistics
     :param cc: cross-correlation or normalized cross-correlation matrix
-    ->相互相関関数or正規化相互相関関数
     :param gt: boolean multidimensional array representing groundtruth
     ->教師データ
     :return: statistics dictionary

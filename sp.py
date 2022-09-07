@@ -52,6 +52,7 @@ def main():
             imgs += [im_cut] # +=で配列追加
         k += [prnu.extract_multiple_aligned(imgs, processes=cpu_count())]#prnuを抽出して配列に追加する
     k = np.stack(k, 0)
+    print(k)
     print('Computing residuals')
     #風景写真について扱う
     imgs = []
