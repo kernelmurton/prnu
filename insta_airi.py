@@ -9,9 +9,11 @@ Politecnico di Milano 2018
 import os
 from glob import glob
 from multiprocessing import cpu_count, Pool
+import csv
 
 import numpy as np
 from PIL import Image
+
 import prnu
 
 
@@ -21,24 +23,19 @@ def main():
     For each device compute the fingerprint from all the flatfield images.
     For each natural image compute the noise residual.t
     Check the detection performance obtained with cross-correlation and PCE
-    :return:23.0258880561172	22.2813862555823	33.2573042222027	22.7495359261404
-
+    :return:
     """
     # PRNUが検出しやすい平面を撮影したデータ
-    ff_dirlist = np.array(sorted(glob('data/ff-jpg/*.jpg')))
-    ff_device = np.array([os.path.split(i)[1].rsplit('_', 1)[0] for i in ff_dirlist])
-    # 風景を撮影したデータ
-    nat_dirlist = np.array(sorted(glob('data/nat-jpg/*.jpg')))
-    nat_device = np.array([os.path.split(i)[1].rsplit('_', 1)[0] for i in nat_dirlist])
-
+    dirlist = np.array(sorted(glob('airisuzuki_official_uf/*.jpg')))
+    numlist = np.array([os.path.split(i)[1].rsplit('_', 1)[1] for i in dirlist])
+    
     print('Computing fingerprints')
     # 今回検出するデバイスを策定
-    fingerprint_device = sorted(np.unique(ff_device))#ユニークなデバイス
     k = []
-    for device in fingerprint_device:
-        print('The unique device is {}'.format(device))
+    for device in numlist:
+        # print('The number of pictures is {}'.format(device))
         imgs = []
-        for img_path in ff_dirlist[ff_device == device]:
+        for img_path in dirlist[numlist == device]:
             im = Image.open(img_path)
             im_arr = np.asarray(im)
             if im_arr.dtype != np.uint8:
@@ -48,40 +45,48 @@ def main():
                 print('Image is not RGB: {}'.format(img_path))
                 continue
             #データのトリミングを行う
-            im_cut = prnu.cut_ctr(im_arr, (512, 512, 3))
+            im_cut = prnu.cut_ctr(im_arr, (300, 300, 3))
             imgs += [im_cut] # +=で配列追加
         k += [prnu.extract_multiple_aligned(imgs, processes=cpu_count())]#prnuを抽出して配列に追加する
     k = np.stack(k, 0)
-
+    # print(k)
+    print('Computing residuals')
     #風景写真について扱う
-    imgs= []
-    for img_path in nat_dirlist:
-        imgs+= [prnu.cut_ctr(np.asarray(Image.open(img_path)), (512, 512, 3))]
+    imgs = []
+    for img_path in dirlist:
+        imgs += [prnu.cut_ctr(np.asarray(Image.open(img_path)), (300, 300, 3))]
     #Python で関数の実行を並列化する
     pool = Pool(cpu_count())
+    print(cpu_count())
     w = pool.map(prnu.extract_single, imgs)
     pool.close()
     w = np.stack(w, 0)
     # Computing Ground Truth
-    gt = prnu.gt(fingerprint_device, nat_device)
+    # gt = prnu.gt(fingerprint_device, nat_device)
 
     print('Computing cross correlation')
     cc_aligned_rot = prnu.aligned_cc(k, w)['cc']
 
-    print('Computing statistics cross correlation')
-    stats_cc = prnu.stats(cc_aligned_rot, gt)
+    # print('Computing statistics cross correlation')
+    # stats_cc = prnu.stats(cc_aligned_rot, gt)
 
     print('Computing PCE')
-    pce_rot = np.zeros((len(fingerprint_device), len(nat_device)))
+    pce_rot = np.zeros((len(numlist), len(numlist)))
+
     for fingerprint_idx, fingerprint_k in enumerate(k):
         for natural_idx, natural_w in enumerate(w):
-            cc2d = prnu.crosscorr_2d(fingerprint_k, natural_w)
-            pce_rot[fingerprint_idx, natural_idx] = prnu.pce(cc2d)['pce']
-            print('PCE value:{:.3f}'.format(prnu.pce(cc2d)['pce']))
-    print('Computing statistics on PCE')
-    stats_pce = prnu.stats(pce_rot, gt)
-    print('AUC on CC {:.2f}'.format(stats_cc['auc']))
-    print('AUC on PCE {:.2f}'.format(stats_pce['auc']))
+            if fingerprint_idx < natural_idx:
+                cc2d = prnu.crosscorr_2d(fingerprint_k, natural_w)
+                pce_rot[fingerprint_idx, natural_idx] = prnu.pce(cc2d)['pce']
+                # print('PCE value:{:.3f}'.format(prnu.pce(cc2d)['pce']))
+
+    #ここでCSVファイルに出力する
+    f = open('pcelist_airisuzuki.csv','w',newline='')
+    writer=csv.writer(f)
+    writer.writerows(pce_rot)
+    f.close()
+
+
 
 if __name__ == '__main__':
     main()
