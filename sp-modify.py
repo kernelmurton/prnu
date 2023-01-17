@@ -6,12 +6,15 @@
 Politecnico di Milano 2018
 """
 
+from asyncore import write
 import os
 from glob import glob
 from multiprocessing import cpu_count, Pool
+from sys import exc_info
 
 import numpy as np
 from PIL import Image
+import pyexiv2
 import prnu
 
 def rotateImage(img, orientation):
@@ -74,7 +77,7 @@ def main():
         for img_path in ff_dirlist[ff_device == device]:
             im = Image.open(img_path)
             exifinfo = im._getexif()
-            orientation=exifinfo.get(0x112,1)
+            orientation=exifinfo.get(0x0112,1)
             if orientation != 1:
                 print('{} is not true position'.format(img_path))
             im_arr = np.asarray(im)
@@ -93,11 +96,9 @@ def main():
     #風景写真について扱う
     imgs= []
     for img_path in nat_dirlist:
+        with pyexiv2.Image(img_path) as img:
+            img.modify_exif({'Exif.Image.Orientation': '1'})
         im=Image.open(img_path)
-        exifinfo=im._getexif()
-        orientation=exifinfo.get(0x112,1)
-        im_rotate=rotateImage(im,orientation)[0]
-        im_rotate.save(img_path,exif = im_rotate.info['exif'],quality=95)
         imgs+= [prnu.cut_ctr(np.asarray(im), (512, 512, 3))]
     #Python で関数の実行を並列化する
     pool = Pool(cpu_count())

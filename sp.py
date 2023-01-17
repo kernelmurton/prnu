@@ -25,10 +25,10 @@ def main():
 
     """
     # PRNUが検出しやすい平面を撮影したデータ
-    ff_dirlist = np.array(sorted(glob('data/ff-jpg/*.jpg')))
+    ff_dirlist = np.array(sorted(glob('raw/ff-jpg/*.jpg')))
     ff_device = np.array([os.path.split(i)[1].rsplit('_', 1)[0] for i in ff_dirlist])
     # 風景を撮影したデータ
-    nat_dirlist = np.array(sorted(glob('data/nat-jpg/*.jpg')))
+    nat_dirlist = np.array(sorted(glob('raw/nat-jpg/*.jpg')))
     nat_device = np.array([os.path.split(i)[1].rsplit('_', 1)[0] for i in nat_dirlist])
 
     print('Computing fingerprints')

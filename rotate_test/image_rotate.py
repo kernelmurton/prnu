@@ -3,9 +3,11 @@ from glob import glob
 from multiprocessing import cpu_count, Pool
 import datetime
 from statistics import quantiles
-
 import numpy as np
+import pyexiv2
+import pprint
 from PIL import Image,ImageFilter
+
 
 def rotateImage(img, orientation):
     """
@@ -43,14 +45,20 @@ def rotateImage(img, orientation):
 
 def main():
     dt_now = datetime.datetime.now()
-    im = Image.open('test.jpg')
+    im_path = 'test.jpg'
+    with pyexiv2.Image(im_path) as img:
+        img.modify_exif({'Exif.Image.Orientation': '1'})
+        data = img.read_exif()
+        print(type(data))
+        pprint.pprint(data)
+    im = Image.open(im_path)
     exifinfo=im._getexif()
-    orientation=exifinfo.get(0x112,1)
+    orientation=exifinfo.get(0x0112,1)
     if orientation == 6:
         print('read scusessed')
     else:
         print('read false')
-    im_rotate=im.rotate(-270,expand=True)
+    im_rotate=rotateImage(im,orientation)[0]
     path = 'rotateImage'+str(dt_now.isoformat)+'.jpg'
     im_rotate.save(path,exif = im_rotate.info['exif'],quality=95)
 
