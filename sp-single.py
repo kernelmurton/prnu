@@ -36,6 +36,7 @@ def main():
     fingerprint_device = sorted(np.unique(ff_device))
     k = []
     for device in fingerprint_device:
+        print('The unique devices is {}'.format(device))
         imgs = []
         for img_path in ff_dirlist[ff_device == device]:
             im = Image.open(img_path)
@@ -51,7 +52,6 @@ def main():
             imgs += [im_cut] # +=で配列追加
         k += [prnu.extract_multiple_aligned(imgs, processes=cpu_count())]
     k = np.stack(k, 0)
-
     print('Computing residuals')
     #風景写真について扱う
     imgs = []
