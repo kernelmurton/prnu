@@ -107,24 +107,26 @@ def main():
     w = np.stack(w, 0)
     # Computing Ground Truth
     gt = prnu.gt(fingerprint_device, nat_device)
-
+    # 相互相関関数を求める
     print('Computing cross correlation')
     cc_aligned_rot = prnu.aligned_cc(k, w)['cc']
-
     print('Computing statistics cross correlation')
     stats_cc = prnu.stats(cc_aligned_rot, gt)
 
+    #PCEを求める
     print('Computing PCE')
     pce_rot = np.zeros((len(fingerprint_device), len(nat_device)))
     for fingerprint_idx, fingerprint_k in enumerate(k):
         for natural_idx, natural_w in enumerate(w):
             cc2d = prnu.crosscorr_2d(fingerprint_k, natural_w)
             pce_rot[fingerprint_idx, natural_idx] = prnu.pce(cc2d)['pce']
-            print('PCE value:{:.3f}'.format(prnu.pce(cc2d)['pce']))
+            # print('PCE value:{:.3f}'.format(prnu.pce(cc2d)['pce']))
     print('Computing statistics on PCE')
     stats_pce = prnu.stats(pce_rot, gt)
-    print('AUC on CC {:.2f}'.format(stats_cc['auc']))
-    print('AUC on PCE {:.2f}'.format(stats_pce['auc']))
 
+    print('AUC on CC {:.2f}'.format(stats_cc['auc']))
+    print('EER on CC {:.2f}'.format(stats_cc['eer']))
+    print('AUC on PCE {:.2f}'.format(stats_pce['auc']))
+    print('EER on PCE {:.2f}'.format(stats_pce['eer']))
 if __name__ == '__main__':
     main()

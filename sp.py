@@ -25,10 +25,10 @@ def main():
 
     """
     # PRNUが検出しやすい平面を撮影したデータ
-    ff_dirlist = np.array(sorted(glob('raw/ff-jpg/*.jpg')))
+    ff_dirlist = np.array(sorted(glob('allData/*.jpg')))
     ff_device = np.array([os.path.split(i)[1].rsplit('_', 1)[0] for i in ff_dirlist])
     # 風景を撮影したデータ
-    nat_dirlist = np.array(sorted(glob('raw/nat-jpg/*.jpg')))
+    nat_dirlist = np.array(sorted(glob('allData/*.jpg')))
     nat_device = np.array([os.path.split(i)[1].rsplit('_', 1)[0] for i in nat_dirlist])
 
     print('Computing fingerprints')
@@ -77,11 +77,13 @@ def main():
         for natural_idx, natural_w in enumerate(w):
             cc2d = prnu.crosscorr_2d(fingerprint_k, natural_w)
             pce_rot[fingerprint_idx, natural_idx] = prnu.pce(cc2d)['pce']
-            print('PCE value:{:.3f}'.format(prnu.pce(cc2d)['pce']))
+            # print('PCE value:{:.3f}'.format(prnu.pce(cc2d)['pce']))
     print('Computing statistics on PCE')
     stats_pce = prnu.stats(pce_rot, gt)
     print('AUC on CC {:.2f}'.format(stats_cc['auc']))
+    print('EER on CC {:.2f}'.format(stats_cc['eer']))
     print('AUC on PCE {:.2f}'.format(stats_pce['auc']))
+    print('EER on PCE {:.2f}'.format(stats_pce['eer']))
 
 if __name__ == '__main__':
     main()

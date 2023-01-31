@@ -7,12 +7,13 @@ Politecnico di Milano 2018
 """
 
 from multiprocessing import Pool, cpu_count
-
+import datetime
 import numpy as np
 import pywt
 from numpy.fft import fft2, ifft2
 from scipy.ndimage import filters
 from sklearn.metrics import roc_curve, auc
+import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 
@@ -522,7 +523,13 @@ def stats(cc: np.ndarray, gt: np.ndarray, ) -> dict:
 
     fpr, tpr, th = roc_curve(gt.flatten(), cc.flatten())
     auc_score = auc(fpr, tpr)
-
+    dt_now = datetime.datetime.now()
+    path = './graph/roc_curve'+str(dt_now.isoformat)+'.png'
+    plt.plot(fpr, tpr, marker='o')
+    plt.xlabel('FPR: False positive rate')
+    plt.ylabel('TPR: True positive rate')
+    plt.grid()
+    plt.savefig(path)
     # EER(Equal Error Rate)
     eer_idx = np.argmin((fpr - (1 - tpr)) ** 2, axis=0)
     eer = float(fpr[eer_idx])
