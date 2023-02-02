@@ -27,7 +27,7 @@ def main():
 
     """
     # PRNUが検出しやすい平面を撮影したデータ
-    ff_dirlist = np.array(sorted(random.choice(glob('allData/*.jpg')) for i in range(5)))
+    ff_dirlist = np.array(sorted(random.choice(glob('allData/*.jpg')) for i in range(3)))
     ff_im = np.array([os.path.split(i)[1] for i in ff_dirlist])
     # print(ff_im)
     ff_device = np.array([os.path.split(i)[1].rsplit('_', 1)[0] for i in ff_dirlist])
@@ -92,6 +92,9 @@ def main():
     # print('EER on CC {:.2f}'.format(stats_cc['eer']))
     # print('AUC on PCE {:.2f}'.format(stats_pce['auc']))
     # print('EER on PCE {:.2f}'.format(stats_pce['eer']))
-
+    # outList = np.append(ff_im,[stats_cc['eer'],stats_cc['auc'],stats_pce['eer'],stats_pce['auc']])
+    # with open('result.csv','a') as f :
+    #     writer =csv.writer(f)
+    #     writer.writerow(outList)
 if __name__ == '__main__':
     main()

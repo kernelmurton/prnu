@@ -524,15 +524,16 @@ def stats(cc: np.ndarray, gt: np.ndarray, ) -> dict:
     fpr, tpr, th = roc_curve(gt.flatten(), cc.flatten())
     auc_score = auc(fpr, tpr)
     dt_now = datetime.datetime.now()
-    path = './graph/roc_curve'+str(dt_now.isoformat)+'.png'
-    plt.plot(fpr, tpr, marker='o')
-    plt.xlabel('FPR: False positive rate')
-    plt.ylabel('TPR: True positive rate')
-    plt.grid()
-    plt.savefig(path)
+    path = '../graph/roc_curve'+str(dt_now.isoformat)+'.png'
+    # plt.plot(fpr, tpr, marker='o')
+    # plt.xlabel('FPR: False positive rate')
+    # plt.ylabel('TPR: True positive rate')
+    # plt.grid()
+    # plt.savefig(path)
     # EER(Equal Error Rate)
     eer_idx = np.argmin((fpr - (1 - tpr)) ** 2, axis=0)
     eer = float(fpr[eer_idx])
+    th_eer = float(th[eer_idx])
 
     outdict = {
         'tpr': tpr,#真陽性率
@@ -540,6 +541,7 @@ def stats(cc: np.ndarray, gt: np.ndarray, ) -> dict:
         'th': th,#閾値
         'auc': auc_score,#ROC 曲線の下部分の面積のこと。１に近い方が良い。
         'eer': eer,
+        'th_eer':th_eer,
     }
 
     return outdict

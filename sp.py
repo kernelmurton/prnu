@@ -9,8 +9,9 @@ Politecnico di Milano 2018
 import os
 from glob import glob
 from multiprocessing import cpu_count, Pool
-
+import csv
 import numpy as np
+import pandas as pd
 from PIL import Image
 import prnu
 
@@ -77,7 +78,12 @@ def main():
         for natural_idx, natural_w in enumerate(w):
             cc2d = prnu.crosscorr_2d(fingerprint_k, natural_w)
             pce_rot[fingerprint_idx, natural_idx] = prnu.pce(cc2d)['pce']
-            # print('PCE value:{:.3f}'.format(prnu.pce(cc2d)['pce']))
+    DF = pd.DataFrame(pce_rot)
+    DF.to_csv("result.csv")
+    # with open('result.csv','w') as f :
+    #     writer =csv.writer(f,lineterminator='\n')
+    #     writer.writerow(pce_rot)
+
     print('Computing statistics on PCE')
     stats_pce = prnu.stats(pce_rot, gt)
     print('AUC on CC {:.2f}'.format(stats_cc['auc']))
