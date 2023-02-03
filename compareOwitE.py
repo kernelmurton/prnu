@@ -9,11 +9,9 @@ import pandas as pd
 from PIL import Image
 import prnu
 
-
-
 def main():
     device_name = 'apple_iPhone8_1'
-    method = 'blur3'
+    method = 'GaussianBlur(5,2.0)'
     ffpath= 'e-Data/effected/'+device_name+'/'+method+'/*.jpg'
     natpath = 'allData/*.jpg'
     # PRNUが検出しやすい平面を撮影したデータ

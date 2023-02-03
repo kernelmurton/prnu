@@ -46,7 +46,26 @@ def extract_single(im: np.ndarray,
     W = wiener_dft(W, W_std).astype(np.float32)
 
     return W
+def nat_extract_single(im: np.ndarray,
+                   levels: int = 4,
+                   sigma: float = 5,
+                   wdft_sigma: float = 0) -> np.ndarray:
+    """
+    Extract noise residual from a single image
+    :param im: grayscale or color image, np.uint8
+    :param levels: number of wavelet decomposition levels
+    :param sigma: estimated noise power
+    :param wdft_sigma: estimated DFT noise power
+    :return: noise residual
+    """
 
+    W = noise_extract(im, levels, sigma)
+    W = rgb2gray(W)
+    W = zero_mean_total(W)
+    W_std = W.std(ddof=1) if wdft_sigma == 0 else wdft_sigma
+    W = wiener_dft(W, W_std).astype(np.float32)
+
+    return W
 
 def noise_extract(im: np.ndarray, levels: int = 4, sigma: float = 5) -> np.ndarray:
     """

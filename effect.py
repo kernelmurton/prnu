@@ -15,9 +15,9 @@ import functions
 def main():
     #変数設定
     device = 'apple_iPhone8_1'
-    sizeNum = 3
-    sigmax = float(1.3)
-    gamma = float(0.5)
+    sizeNum = 5
+    sigmax = float(2)
+    gamma = float(2)
     k_size = (sizeNum,sizeNum)
     #特定のデバイスのフォルダを作成
     dirpath = 'e-Data/'+ device + '/*.jpg'
