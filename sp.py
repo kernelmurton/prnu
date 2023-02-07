@@ -26,15 +26,24 @@ def main():
 
     """
     # PRNUが検出しやすい平面を撮影したデータ
-    ff_dirlist = np.array(sorted(glob('allData/*.jpg')))
-    ff_device = np.array([os.path.split(i)[1].rsplit('_', 1)[0] for i in ff_dirlist])
+    device_name = 'apple_iPhone8_1'
+    method = 'blur3'
+    epath = 'e-Data/Effected/'+device_name+'/'+method+'/*.jpg'
+    e_dirlist = np.array(sorted(glob(epath)))
+    cpath = 'e-Data/Categorized/apple_iPhone8_0/*.jpg'
+    c_dirlist = np.array(sorted(glob(cpath)))
+    ff_dirlist = np.append(e_dirlist, c_dirlist)
+    print(ff_dirlist)
+    ff_device = np.array([os.path.split(i)[1].rsplit('_', 1)[0]
+                         for i in ff_dirlist])
     # 風景を撮影したデータ
     nat_dirlist = np.array(sorted(glob('allData/*.jpg')))
-    nat_device = np.array([os.path.split(i)[1].rsplit('_', 1)[0] for i in nat_dirlist])
+    nat_device = np.array([os.path.split(i)[1].rsplit('_', 1)[0]
+                          for i in nat_dirlist])
 
     print('Computing fingerprints')
     # 今回検出するデバイスを策定
-    fingerprint_device = sorted(np.unique(ff_device))#ユニークなデバイス
+    fingerprint_device = sorted(np.unique(ff_device))  # ユニークなデバイス
     k = []
     for device in fingerprint_device:
         print('The unique device is {}'.format(device))
@@ -48,17 +57,18 @@ def main():
             if im_arr.ndim != 3:
                 print('Image is not RGB: {}'.format(img_path))
                 continue
-            #データのトリミングを行う
+            # データのトリミングを行う
             im_cut = prnu.cut_ctr(im_arr, (512, 512, 3))
-            imgs += [im_cut] # +=で配列追加
-        k += [prnu.extract_multiple_aligned(imgs, processes=cpu_count())]#prnuを抽出して配列に追加する
+            imgs += [im_cut]  # +=で配列追加
+        # prnuを抽出して配列に追加する
+        k += [prnu.extract_multiple_aligned(imgs, processes=cpu_count())]
     k = np.stack(k, 0)
 
-    #風景写真について扱う
-    imgs= []
+    # 風景写真について扱う
+    imgs = []
     for img_path in nat_dirlist:
-        imgs+= [prnu.cut_ctr(np.asarray(Image.open(img_path)), (512, 512, 3))]
-    #Python で関数の実行を並列化する
+        imgs += [prnu.cut_ctr(np.asarray(Image.open(img_path)), (512, 512, 3))]
+    # Python で関数の実行を並列化する
     pool = Pool(cpu_count())
     w = pool.map(prnu.extract_single, imgs)
     pool.close()
@@ -78,18 +88,20 @@ def main():
         for natural_idx, natural_w in enumerate(w):
             cc2d = prnu.crosscorr_2d(fingerprint_k, natural_w)
             pce_rot[fingerprint_idx, natural_idx] = prnu.pce(cc2d)['pce']
-    DF = pd.DataFrame(pce_rot)
-    DF.to_csv("result.csv")
+    # DF = pd.DataFrame(pce_rot)
+    # DF.to_csv("result.csv")
     # with open('result.csv','w') as f :
     #     writer =csv.writer(f,lineterminator='\n')
     #     writer.writerow(pce_rot)
 
     print('Computing statistics on PCE')
     stats_pce = prnu.stats(pce_rot, gt)
+
     print('AUC on CC {:.2f}'.format(stats_cc['auc']))
     print('EER on CC {:.2f}'.format(stats_cc['eer']))
     print('AUC on PCE {:.2f}'.format(stats_pce['auc']))
     print('EER on PCE {:.2f}'.format(stats_pce['eer']))
+
 
 if __name__ == '__main__':
     main()

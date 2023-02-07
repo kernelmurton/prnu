@@ -62,6 +62,8 @@ def main():
     with open(result_path,'a') as f :
          writer =csv.writer(f)
          writer.writerow(outList)
+    df = pd.DataFrame(ff_imgs)
+    df.to_csv('sortImgList.csv')
     print('AUC,EER,TH_EER on PCE {:.2f}{:.2f}{:.2f}'.format(stats_pce['auc'],stats_pce['eer'],stats_pce['th_eer']))
     
 if __name__ == '__main__':

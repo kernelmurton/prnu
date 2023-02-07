@@ -30,7 +30,7 @@ def main():
     # 風景を撮影したデータ
     nat_dirlist = np.array(sorted(glob('test/data/nat-jpg/*.JPG')))
     nat_device = np.array([os.path.split(i)[1].rsplit('_', 1)[0] for i in nat_dirlist])
-
+    print(ff_dirlist)
     print('Computing fingerprints')
     # 今回検出するデバイスを策定
     fingerprint_device = sorted(np.unique(ff_device))
